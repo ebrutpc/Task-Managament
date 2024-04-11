@@ -4,6 +4,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateTaskDTO } from './dto/create-task.dto';
 import { TaskStatus } from './task-status.enum';
 import { InjectRepository } from '@nestjs/typeorm';
+import { GetTasksFilterDTO } from './dto/get-task-filter.dto';
 
 @Injectable()
 export class TaskRepository {
@@ -23,12 +24,23 @@ export class TaskRepository {
     return task;
   }
 
-  async getAllTasks(): Promise<Task[]> {
-    return this.repository.find();
+  async getAllTasks(filterDto: GetTasksFilterDTO): Promise<Task[]> {
+    const { search, status } = filterDto;
+    const query = this.repository.createQueryBuilder('task');
+    if (status) {
+      query.andWhere('task.status = :status', { status });
+    }
+    if (search) {
+      query.andWhere(
+        'LOWER(task.title) LIKE LOWER(:search) OR LOWER(task.description) LIKE LOWER(:search)',
+        { search: `%${search}%` },
+      );
+    }
+    const tasks = await query.getMany();
+    return tasks;
   }
 
   async updateTaskById(task: Task): Promise<Task> {
-    // await this.repository.update(id, { status });
     await this.repository.save(task);
     return task;
   }

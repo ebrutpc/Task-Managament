@@ -9,8 +9,8 @@ import { TaskStatus } from './task-status.enum';
 export class TasksService {
   constructor(private taskRepository: TaskRepository) {}
 
-  getAllTasks(): Promise<Task[]> {
-    return this.taskRepository.getAllTasks();
+  getAllTasks(filterDto: GetTasksFilterDTO): Promise<Task[]> {
+    return this.taskRepository.getAllTasks(filterDto);
   }
 
   async createTask(createTaskDto: CreateTaskDTO): Promise<Task> {
@@ -45,26 +45,5 @@ export class TasksService {
     }
     task.status = status;
     return this.taskRepository.updateTaskById(task);
-  }
-
-  async getTasksWithFilters(filterDto: GetTasksFilterDTO): Promise<Task[]> {
-    const { search, status } = filterDto;
-
-    let tasks = await this.getAllTasks();
-
-    if (search) {
-      tasks = tasks.filter((task) => {
-        if (task.title.includes(search) || task.description.includes(search)) {
-          return true;
-        }
-        return false;
-      });
-
-      if (status) {
-        tasks = tasks.filter((task) => task.status === status);
-      }
-    }
-
-    return tasks;
   }
 }
