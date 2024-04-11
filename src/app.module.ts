@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
-import { TasksModule } from './tasks/tasks.module';
+import { TasksModule } from './domains/tasks/tasks.module';
+import { postgres } from './Infra/databases/postgres.database';
 
 @Module({
-  imports: [TasksModule],
+  imports: [TasksModule, postgres],
   controllers: [],
   providers: [],
 })
