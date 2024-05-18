@@ -5,20 +5,21 @@ import { CreateTaskDTO } from './dto/create-task.dto';
 import { GetTasksFilterDTO } from './dto/get-task-filter.dto';
 import { TaskRepository } from './task.repository';
 import { TaskStatus } from './task-status.enum';
+import { User } from 'src/auth/user.entity';
 @Injectable()
 export class TasksService {
-  constructor(private taskRepository: TaskRepository) {}
+  constructor(private readonly taskRepository: TaskRepository) {}
 
-  getAllTasks(filterDto: GetTasksFilterDTO): Promise<Task[]> {
-    return this.taskRepository.getAllTasks(filterDto);
+  getAllTasks(filterDto: GetTasksFilterDTO, user: User): Promise<Task[]> {
+    return this.taskRepository.getAllTasks(filterDto, user);
   }
 
-  async createTask(createTaskDto: CreateTaskDTO): Promise<Task> {
-    return this.taskRepository.createTask(createTaskDto);
+  async createTask(createTaskDto: CreateTaskDTO, user: User): Promise<Task> {
+    return this.taskRepository.createTask(createTaskDto, user);
   }
 
-  async getTaskById(id: string): Promise<Task> {
-    const task = await this.taskRepository.getTaskById(id);
+  async getTaskById(id: string, user: User): Promise<Task> {
+    const task = await this.taskRepository.getTaskById(id, user);
     if (!task) {
       throw new NotFoundException(`Task with "${id}" not found.`, {
         description: 'tasks.service.getById',
@@ -27,8 +28,8 @@ export class TasksService {
     return task;
   }
 
-  async deleteTask(id: string): Promise<void> {
-    const result = await this.taskRepository.deleteTaskById(id);
+  async deleteTask(id: string, user: User): Promise<void> {
+    const result = await this.taskRepository.deleteTaskById(id, user);
     if (result.affected === 0) {
       throw new NotFoundException(`Task with ID: ${id} not found`, {
         description: 'task.service.deleteTask',
@@ -36,8 +37,12 @@ export class TasksService {
     }
   }
 
-  async updateTaskStatus(id: string, status: TaskStatus): Promise<Task> {
-    const task = await this.taskRepository.getTaskById(id);
+  async updateTaskStatus(
+    id: string,
+    status: TaskStatus,
+    user: User,
+  ): Promise<Task> {
+    const task = await this.taskRepository.getTaskById(id, user);
     if (!task) {
       throw new NotFoundException(`Task with "${id}" not found.`, {
         description: 'tasks.service.updateTaskStatus',
