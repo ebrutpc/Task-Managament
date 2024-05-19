@@ -1,6 +1,6 @@
 import { Repository } from 'typeorm';
 import { Task } from './task.entity';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { CreateTaskDTO } from './dto/create-task.dto';
 import { TaskStatus } from './task-status.enum';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -9,6 +9,7 @@ import { User } from 'src/auth/user.entity';
 
 @Injectable()
 export class TaskRepository {
+  private _logger = new Logger('TaskRepository', { timestamp: true });
   constructor(@InjectRepository(Task) private repository: Repository<Task>) {}
   async getTaskById(id: string, user: User): Promise<Task> {
     return this.repository.findOne({ where: { id, user } });

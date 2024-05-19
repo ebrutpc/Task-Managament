@@ -8,6 +8,7 @@ import {
   Patch,
   Query,
   UseGuards,
+  Logger,
 } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { Task } from './task-status.enum';
@@ -21,6 +22,7 @@ import { User } from 'src/auth/user.entity';
 @Controller('tasks')
 @UseGuards(AuthGuard())
 export class TasksController {
+  private logger = new Logger('TaskController');
   constructor(private readonly tasksService: TasksService) {}
 
   @Get()
@@ -28,6 +30,9 @@ export class TasksController {
     @Query() filterDto: GetTasksFilterDTO,
     @GetUser() user: User,
   ): Promise<Task[]> {
+    this.logger.verbose(
+      `User "${user.username}" retrieving all tasks. Filters: ${JSON.stringify(filterDto)} `,
+    );
     return this.tasksService.getAllTasks(filterDto, user);
   }
 
@@ -41,6 +46,9 @@ export class TasksController {
     @Body() createTaskDto: CreateTaskDTO,
     @GetUser() user: User,
   ): Promise<Task> {
+    this.logger.verbose(
+      `User "${user.username}" creating a new task. Data: ${JSON.stringify(createTaskDto)}`,
+    );
     return this.tasksService.createTask(createTaskDto, user);
   }
 
@@ -56,6 +64,9 @@ export class TasksController {
     @GetUser() user: User,
   ): Promise<Task> {
     const { status } = updateTaskStatusDTO;
+    this.logger.verbose(
+      `User "${user.username}" updating a new task. Data: ${JSON.stringify(updateTaskStatusDTO)}`,
+    );
     return this.tasksService.updateTaskStatus(id, status, user);
   }
 }
