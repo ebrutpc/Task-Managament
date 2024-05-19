@@ -3,7 +3,7 @@
 /node_modules
 .env
 .env.stage.dev
-.env.stage.pro
+.env.stage.prod
 # Logs
 logs
 *.log
